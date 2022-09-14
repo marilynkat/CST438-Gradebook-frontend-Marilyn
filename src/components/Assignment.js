@@ -17,37 +17,37 @@ class Assignment extends React.Component {
       super(props);
       this.state = {selected: 0, assignments: []};
     };
+
+    componentDidMount() {
+      this.fetchAssignments();
+    }
  
-   componentDidMount() {
-    this.fetchAssignments();
-  }
- 
-  fetchAssignments = () => {
-    console.log("Assignment.fetchAssignments");
-    const token = Cookies.get('XSRF-TOKEN');
-    fetch(`${SERVER_URL}/gradebook`, 
-      {  
-        method: 'GET', 
-        headers: { 'X-XSRF-TOKEN': token }
-      } )
-    .then((response) => response.json()) 
-    .then((responseData) => { 
-      if (Array.isArray(responseData.assignments)) {
-        //  add to each assignment an "id"  This is required by DataGrid  "id" is the row index in the data grid table 
-        this.setState({ assignments: responseData.assignments.map((assignment, index) => ( { id: index, ...assignment } )) });
-      } else {
-        toast.error("Fetch failed.", {
-          position: toast.POSITION.BOTTOM_LEFT
-        });
-      }        
-    })
-    .catch(err => console.error(err)); 
-  }
+    fetchAssignments = () => {
+      console.log("Assignment.fetchAssignments");
+      const token = Cookies.get('XSRF-TOKEN');
+      fetch(`${SERVER_URL}/gradebook`, 
+        {  
+          method: 'GET', 
+          headers: { 'X-XSRF-TOKEN': token }
+        } )
+      .then((response) => response.json()) 
+      .then((responseData) => { 
+        if (Array.isArray(responseData.assignments)) {
+          //  add to each assignment an "id"  This is required by DataGrid  "id" is the row index in the data grid table 
+          this.setState({ assignments: responseData.assignments.map((assignment, index) => ( { id: index, ...assignment } )) });
+        } else {
+          toast.error("Fetch failed.", {
+            position: toast.POSITION.BOTTOM_LEFT
+          });
+        }        
+      })
+      .catch(err => console.error(err)); 
+    }
   
-   onRadioClick = (event) => {
-    console.log("Assignment.onRadioClick " + event.target.value);
-    this.setState({selected: event.target.value});
-  }
+      onRadioClick = (event) => {
+        console.log("Assignment.onRadioClick " + event.target.value);
+        this.setState({selected: event.target.value});
+      }
   
   render() {
      const columns = [
@@ -74,9 +74,13 @@ class Assignment extends React.Component {
       
       const assignmentSelected = this.state.assignments[this.state.selected];
       return (
-          <div align="left" >
+          <div align="left" >         
+          <Button component={Link} to={{pathname:'/AddAssignment'}} 
+                    variant="outlined" color="primary" style={{margin: 10}}>
+              Add Assignment
+          </Button>  
             <h4>Assignment(s) ready to grade: </h4>
-              <div style={{ height: 450, width: '100%', align:"left"   }}>
+              <div style={{ height: 450, width: '100%', align:"left"}}>
                 <DataGrid rows={this.state.assignments} columns={columns} />
               </div>                
             <Button component={Link} to={{pathname:'/gradebook',   assignment: assignmentSelected }} 
